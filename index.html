@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="fr" class="dark">
+<head>
+    <title>DC2S Messages</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            overflow: hidden;
+        }
+
+        .neon {
+            font-size: 4rem;
+            color: #fff;
+            text-shadow: 0 0 5px #ff005e, 0 0 10px #ff005e, 0 0 20px #ff005e, 0 0 40px #ff005e, 0 0 80px #ff005e;
+            animation: glow 1.5s infinite alternate;
+        }
+
+        @keyframes glow {
+            0% {
+                text-shadow: 0 0 5px #ff005e, 0 0 10px #ff005e, 0 0 20px #ff005e, 0 0 40px #ff005e, 0 0 80px #ff005e;
+            }
+            100% {
+                text-shadow: 0 0 10px #00d4ff, 0 0 20px #00d4ff, 0 0 40px #00d4ff, 0 0 80px #00d4ff, 0 0 160px #00d4ff;
+            }
+        }
+        :root {
+            --width:326px;
+            --height:calc(var(--width) / 2);
+        }
+
+        .dvd {
+            width: var(--width);
+            height: var(--height);
+            background: url('dc2slogo.jpg');
+            background-repeat: no-repeat;
+            background-size: contain;
+            position:absolute;
+
+            animation: toRight linear 6.8s infinite alternate, bounce linear 17s infinite alternate;
+        }
+
+        @keyframes bounce {
+            0% {
+                top:0;
+            }
+            48% {
+            }
+            50% {
+                top: calc(100% - var(--height));
+            }
+            52% {
+            }
+            100% {
+                top: 0;
+            }
+        }
+
+        @keyframes toRight {
+
+            0% {
+                left: 0;
+            }
+
+            100% {
+                left: calc(100% - var(--width));
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-600 text-gray-100 flex flex-col items-center justify-center min-h-screen p-4">
+<a id="url" href="" target="_blank"
+   class="rounded-lg bg-no-repeat bg-center bg-contain m-12"
+   style="background-image: url('dc2slogo.jpg'); width: 326px; height: 125px;">
+</a>
+
+<div id="config" class="bg-gray-800 p-6 rounded-lg mb-6 w-full max-w-md">
+    <h2 class="text-2xl text-center mb-4">Configuration</h2>
+    <form id="configForm" class="space-y-4">
+        <div>
+            <label class="block">
+                L'URL du ticket:
+                <input id="tUrl" type="url" placeholder="https://panel.dc2s.fr/?cmd=tickets&action=view&num=842102&hash=cnvip0ktzuh07cj45z6nwfpv48b28o04" required
+                       class="mt-1 w-full p-2 rounded border border-gray-500 bg-gray-700 text-white">
+            </label>
+        </div>
+        <div>
+            <label class="block">
+                L'URL du sujet ntfy:
+                <input id="ntfyUrl" type="url" placeholder="https://ntfy.ulysse.gl/sujet"
+                       class="mt-1 w-full p-2 rounded border border-gray-500 bg-gray-700 text-white">
+            </label>
+        </div>
+        <div class="flex items-center">
+            <input id="ntfy" type="checkbox" class="mr-2">
+            <label for="ntfy">Activer les notifications</label>
+        </div>
+        <div class="flex items-center">
+            <input id="animations" type="checkbox" class="mr-2">
+            <label for="animations">Activer les animations (lourd pour les tablettes Y10 2019)</label>
+        </div>
+        <button type="submit"
+                class="w-full bg-teal-500 hover:bg-teal-600 text-white p-2 rounded">
+            Sauvegarder la configuration
+        </button>
+    </form>
+</div>
+
+<div id="main" class="hidden w-full max-w-md">
+    <h1 id="timeSinceLastMessage" class="text-3xl font-bold text-teal-100 text-center">
+        Chargement...
+    </h1>
+    <div id="message" class="mt-4 p-4 bg-teal-800 text-white rounded-lg shadow-lg">
+        Chargement...
+    </div>
+</div>
+
+<script src="index.js"></script>
+<script>
+    function showMain() {
+        document.getElementById('config').classList.add('hidden');
+        document.getElementById('main').classList.remove('hidden');
+
+
+        updateMessages();
+        updateTime();
+
+        setInterval(updateMessages, 60000);
+        setInterval(updateTime, 1000);
+    }
+    function loadConfig() {
+        const tUrl = localStorage.getItem('tUrl');
+        const ntfyUrl = localStorage.getItem('ntfyUrl');
+        const ntfy = localStorage.getItem('ntfy') === 'true';
+        const animations = localStorage.getItem('animations') === 'true';
+
+        if (tUrl) {
+            if (animations) {
+                document.getElementById('url').classList.add('dvd');
+                document.getElementById('timeSinceLastMessage').classList.add('neon');
+            }
+
+            showMain();
+        }
+    }
+
+    document.getElementById('configForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+        const tUrlValue = document.getElementById('tUrl').value;
+        const ntfyUrlValue = document.getElementById('ntfyUrl').value;
+        const ntfyValue = document.getElementById('ntfy').checked;
+        const animationsValue = document.getElementById('animations').checked;
+
+        if (!ntfyUrlValue && ntfyValue) {
+            alert('Vous devez renseigner l\'URL du sujet ntfy pour recevoir des notifications');
+            return;
+        }
+
+        localStorage.setItem('tUrl', tUrlValue);
+        localStorage.setItem('ntfyUrl', ntfyUrlValue);
+        localStorage.setItem('ntfy', ntfyValue);
+        localStorage.setItem('animations', animationsValue);
+
+        showMain();
+    });
+
+    loadConfig();
+
+    document.addEventListener("click", function() {
+        if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen();
+        }
+    });
+</script>
+</body>
+</html>
