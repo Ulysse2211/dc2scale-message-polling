@@ -3,7 +3,7 @@ let lastMessageContent = "";
 
 async function updateMessages() {
     const url = localStorage.getItem('tUrl');
-    const response = await fetch('https://proxy.corsfix.com/?' + url);
+    const response = await fetch('http://89.168.41.219:8000/' + url);
     const doc = new DOMParser().parseFromString(await response.text(), "text/html");
     const comments = doc.querySelectorAll('.comment');
 
